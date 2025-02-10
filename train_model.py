@@ -21,8 +21,6 @@ def train_collaborative_filtering():
     model.fit(trainset)
     predictions = model.test(testset)
     rmse=accuracy.rmse(predictions)
-    precision,recall,f1 = (predictions)
-    col_metrics = {"RMSE": rmse, "Precision": precision, "Recall": recall, "F1-score": f1}
 
     with open("models/cf_model.pkl", "wb") as f:
         pickle.dump(model, f)
