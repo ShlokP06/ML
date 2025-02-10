@@ -2,45 +2,34 @@ import pandas as pd
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import TfidfVectorizer
-from surprise import Dataset, Reader, SVD, accuracy
-from surprise.model_selection import train_test_split
+from sklearn.decomposition import TruncatedSVD
 import pickle
-import json
+ratings = pd.read_csv('ratings.csv')
+movies = pd.read_csv('movies.csv')
+data = pd.merge(ratings, movies, on='MovieID')
 
+user_movie_matrix = data.pivot_table(index='UserID', columns='Title', values='Rating').fillna(0)
+svd = TruncatedSVD(n_components=50, random_state=42)
+user_movie_matrix_reduced = svd.fit_transform(user_movie_matrix)
 
-# Load data
-movies = pd.read_csv("movies.csv")
-ratings = pd.read_csv("ratings.csv")
+tfidf = TfidfVectorizer(stop_words='english')
+movies['Genres'] = movies['Genres'].str.replace('|', ' ')
+genre_matrix = tfidf.fit_transform(movies['Genres'])
 
-# Collaborative Filtering Model
-def train_collaborative_filtering():
-    reader = Reader(rating_scale=(0.5, 5))
-    data = Dataset.load_from_df(ratings[['UserID', 'MovieID', 'Rating']], reader)
-    trainset, testset = train_test_split(data, test_size=0.2)
-    model = SVD()
-    model.fit(trainset)
-    predictions = model.test(testset)
-    rmse=accuracy.rmse(predictions)
+content_similarity = cosine_similarity(genre_matrix, genre_matrix)
+with open('svd_model.pkl', 'wb') as f:
+    pickle.dump(svd, f)
 
-    with open("models/cf_model.pkl", "wb") as f:
-        pickle.dump(model, f)
+with open('tfidf_model.pkl', 'wb') as f:
+    pickle.dump(tfidf, f)
 
-# Content-Based Filtering Model
-def train_content_based_filtering():
-    tfidf = TfidfVectorizer(stop_words="english")
-    movies['Genres'] = movies['Genres'].fillna('')
-    tfidf_matrix = tfidf.fit_transform(movies['Genres'])
-    cosine_sim = cosine_similarity(tfidf_matrix, tfidf_matrix)
-    with open("models/content_model.pkl", "wb") as f:
-        pickle.dump((cosine_sim, movies), f)
+with open('user_movie_matrix.pkl', 'wb') as f:
+    pickle.dump(user_movie_matrix, f)
 
-# Hybrid Filtering Model
-def train_hybrid_filtering():
-    train_collaborative_filtering()
-    train_content_based_filtering()
-    hybrid_metrics={}
+with open('content_similarity.pkl', 'wb') as f:
+    pickle.dump(content_similarity, f)
 
-if __name__ == "__main__":
-    train_collaborative_filtering()
-    train_content_based_filtering()
-    train_hybrid_filtering()
+with open('movies.pkl', 'wb') as f:
+    pickle.dump(movies, f)
+
+print("Models and data saved successfully!")
