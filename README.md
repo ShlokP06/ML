@@ -18,7 +18,7 @@ This project is a **Movie Recommendation System** built using **Collaborative Fi
 - **Frontend** (HTML, CSS, JavaScript)
 
 ## Dataset
-The repository contains a script `dn_movies.py` that needs to be run to download `ratings.csv`.
+The repository contains a script `dn_movies.py` that needs to be run to download `ratings.csv`. Additionally, `movies.csv` is included in the repository.
 
 ## Installation
 1. Clone the repository:
@@ -74,6 +74,7 @@ To start the Flask app, follow these steps:
 │   ├── js/
 │   │   ├── script.js       # JavaScript file
 ├── dn_movies.py            # Script to download ratings.csv
+├── movies.csv              # Movies dataset
 ├── requirements.txt        # Dependencies
 ├── README.md               # Project documentation
 ```
@@ -86,3 +87,4 @@ To start the Flask app, follow these steps:
 ## Download
 - [Download README.md](README.md)
 - [Download requirements.txt](requirements.txt)
+
